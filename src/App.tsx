@@ -1,6 +1,46 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import "./App.css";
+
+// Mock Data for the Wave
+const ACTIVITY_DATA = Array.from({ length: 30 }, (_, i) => ({
+  day: i + 1,
+  calories: Math.floor(Math.random() * (2500 - 1800) + 1800),
+  commits: Math.floor(Math.random() * 15),
+  focus: Math.floor(Math.random() * (100 - 60) + 60),
+}));
+
+function ActivityWave() {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={ACTIVITY_DATA}>
+        <Tooltip
+          contentStyle={{ backgroundColor: '#1a1b1e', border: 'none', borderRadius: '8px' }}
+          itemStyle={{ color: '#e5e7eb' }}
+        />
+        <XAxis dataKey="day" hide />
+        <Line
+          type="monotone"
+          dataKey="commits"
+          stroke="#10b981"
+          strokeWidth={3}
+          dot={false}
+          strokeOpacity={0.8}
+        />
+        <Line
+          type="monotone"
+          dataKey="focus"
+          stroke="#60a5fa"
+          strokeWidth={3}
+          dot={false}
+          strokeOpacity={0.5}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
 
 interface DashboardStats {
   life_score: number;
@@ -39,6 +79,10 @@ function App() {
       .catch(console.error);
   }, []);
 
+  const handleMinimize = () => getCurrentWindow().minimize();
+  const handleMaximize = () => getCurrentWindow().toggleMaximize();
+  const handleClose = () => getCurrentWindow().close();
+
   if (!stats) return <div className="container"><h1>Loading Life Stats...</h1></div>;
 
   return (
@@ -46,9 +90,9 @@ function App() {
       {/* Custom Title Bar (Drag Region) */}
       <div data-tauri-drag-region className="titlebar">
         <div className="titlebar-buttons">
-          <div className="titlebar-button close"></div>
-          <div className="titlebar-button minimize"></div>
-          <div className="titlebar-button maximize"></div>
+          <div onClick={handleClose} className="titlebar-button close"></div>
+          <div onClick={handleMinimize} className="titlebar-button minimize"></div>
+          <div onClick={handleMaximize} className="titlebar-button maximize"></div>
         </div>
       </div>
 
@@ -63,6 +107,14 @@ function App() {
           </div>
         )}
         <h1 className="header-title">Life Stats</h1>
+      </div>
+
+      {/* Activity Chart Area */}
+      <div className="chart-container">
+        <h3 className="chart-title">Activity Wave</h3>
+        <div className="chart-wrapper">
+          <ActivityWave />
+        </div>
       </div>
 
       {/* Score Circle Area */}
