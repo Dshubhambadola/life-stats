@@ -11,12 +11,18 @@ interface DashboardStats {
 
 function App() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [zenQuote, setZenQuote] = useState<string>("Connecting to the matrix...");
 
   useEffect(() => {
-    // Call the Rust command
+    // 1. Fetch Stats Mock
     invoke<DashboardStats>("get_dashboard_stats")
       .then(setStats)
       .catch(console.error);
+
+    // 2. Fetch Real HTTP Data (GitHub Zen)
+    invoke<string>("test_fetch")
+      .then(setZenQuote)
+      .catch((err) => setZenQuote(`Error: ${err}`));
   }, []);
 
   if (!stats) return <div className="container"><h1>Loading Life Stats...</h1></div>;
@@ -40,7 +46,7 @@ function App() {
           <span className="score-value">{stats.life_score}</span>
           <span className="score-label">SCORE</span>
         </div>
-        <p className="quote">"You're in the top 5% of devs today."</p>
+        <p className="quote">"{zenQuote}"</p>
       </div>
 
       {/* Grid of Stats */}
