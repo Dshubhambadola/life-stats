@@ -1,5 +1,6 @@
 mod github;
 mod http_client;
+mod wakatime_client;
 
 use serde::{Deserialize, Serialize};
 
@@ -34,14 +35,21 @@ async fn get_github_user(username: &str) -> Result<github::GithubUser, String> {
     github::fetch_user(username).await
 }
 
+#[tauri::command]
+async fn get_wakatime_stats(api_key: &str) -> Result<wakatime_client::WakatimeStats, String> {
+    wakatime_client::fetch_coding_hours(api_key).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             get_dashboard_stats,
             test_fetch,
-            get_github_user
+            get_github_user,
+            get_wakatime_stats
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

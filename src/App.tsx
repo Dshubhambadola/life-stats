@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { load } from "@tauri-apps/plugin-store";
 import { LineChart, Line, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import "./App.css";
 
@@ -57,10 +58,20 @@ interface GithubUser {
   followers: number;
 }
 
+interface WakatimeStats {
+  human_readable_total: string;
+  total_seconds: number;
+}
+
 function App() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [zenQuote, setZenQuote] = useState<string>("Connecting to the matrix...");
   const [user, setUser] = useState<GithubUser | null>(null);
+
+  // WakaTime State
+  const [wakaStats, setWakaStats] = useState<WakatimeStats | null>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [needsApiKey, setNeedsApiKey] = useState(false);
 
   useEffect(() => {
     // 1. Fetch Stats Mock
@@ -77,7 +88,48 @@ function App() {
     invoke<GithubUser>("get_github_user", { username: "Dshubhambadola" })
       .then(setUser)
       .catch(console.error);
+
+    // 4. Check/Fetch WakaTime
+    checkWakatime();
   }, []);
+
+  async function checkWakatime() {
+    try {
+      const store = await load("life-stats-store.json");
+      const storedKey = await store.get<string>("wakatime_api_key");
+      if (storedKey) {
+        fetchWakatime(storedKey);
+      } else {
+        setNeedsApiKey(true);
+      }
+    } catch (e) {
+      console.error("Store error:", e);
+      setNeedsApiKey(true);
+    }
+  }
+
+  async function fetchWakatime(key: string) {
+    try {
+      const data = await invoke<WakatimeStats>("get_wakatime_stats", { apiKey: key });
+      setWakaStats(data);
+      setNeedsApiKey(false);
+    } catch (e) {
+      console.error("WakaTime fetch error:", e);
+      setNeedsApiKey(true); // Show input on error
+    }
+  }
+
+  async function handleSaveKey() {
+    if (!apiKey) return;
+    try {
+      const store = await load("life-stats-store.json");
+      await store.set("wakatime_api_key", apiKey);
+      await store.save(); // Persist to disk
+      fetchWakatime(apiKey);
+    } catch (e) {
+      console.error("Failed to save key:", e);
+    }
+  }
 
   const handleMinimize = () => {
     console.log("Minimize clicked");
@@ -96,7 +148,6 @@ function App() {
 
   return (
     <div className="container">
-      {/* Custom Title Bar (Drag Region) */}
       {/* Custom Title Bar */}
       <div className="titlebar">
         <div className="titlebar-buttons">
@@ -140,7 +191,30 @@ function App() {
       {/* Grid of Stats */}
       <div className="stats-grid">
         <StatCard label="GitHub Commits" value={stats.github_commits} color="#4ade80" />
-        <StatCard label="Coding Hours" value={stats.coding_hours + "h"} color="#60a5fa" />
+
+        {/* WakaTime Card */}
+        {needsApiKey ? (
+          <div className="stat-card" style={{ borderTop: `4px solid #60a5fa` }}>
+            <div className="api-input-container">
+              <input
+                type="password"
+                placeholder="WakaTime Key"
+                className="api-input"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+              <button className="api-save-btn" onClick={handleSaveKey}>Save</button>
+            </div>
+            <div className="stat-label">Connect WakaTime</div>
+          </div>
+        ) : (
+          <StatCard
+            label="7-Day Coding"
+            value={wakaStats ? wakaStats.human_readable_total : "Loading..."}
+            color="#60a5fa"
+          />
+        )}
+
         <StatCard label="Sleep Hours" value={stats.sleep_hours + "h"} color="#f472b6" />
       </div>
     </div>
