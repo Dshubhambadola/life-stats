@@ -34,7 +34,7 @@ function App() {
       .catch((err) => setZenQuote(`Error: ${err}`));
 
     // 3. Fetch GitHub Profile
-    invoke<GithubUser>("get_github_user", { username: "shubhambadola" })
+    invoke<GithubUser>("get_github_user", { username: "Dshubhambadola" })
       .then(setUser)
       .catch(console.error);
   }, []);
