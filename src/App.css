@@ -72,12 +72,55 @@ body {
   /* Push content down below titlebar */
 }
 
-.header {
+.header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 3rem;
+}
+
+.header-title {
   font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  margin-bottom: 3rem;
   color: #fff;
+  margin: 0;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: 1px solid #2d2f36;
+}
+
+.profile-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-score);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.profile-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.profile-stats {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
 
 .score-card {

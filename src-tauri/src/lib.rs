@@ -1,3 +1,4 @@
+mod github;
 mod http_client;
 
 use serde::{Deserialize, Serialize};
@@ -28,11 +29,20 @@ async fn test_fetch() -> Result<String, String> {
     http_client::fetch_url("https://api.github.com/zen").await
 }
 
+#[tauri::command]
+async fn get_github_user(username: &str) -> Result<github::GithubUser, String> {
+    github::fetch_user(username).await
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![get_dashboard_stats, test_fetch])
+        .invoke_handler(tauri::generate_handler![
+            get_dashboard_stats,
+            test_fetch,
+            get_github_user
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

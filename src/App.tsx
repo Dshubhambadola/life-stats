@@ -9,9 +9,18 @@ interface DashboardStats {
   sleep_hours: number;
 }
 
+interface GithubUser {
+  login: string;
+  name: string | null;
+  avatar_url: string;
+  public_repos: number;
+  followers: number;
+}
+
 function App() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [zenQuote, setZenQuote] = useState<string>("Connecting to the matrix...");
+  const [user, setUser] = useState<GithubUser | null>(null);
 
   useEffect(() => {
     // 1. Fetch Stats Mock
@@ -23,6 +32,11 @@ function App() {
     invoke<string>("test_fetch")
       .then(setZenQuote)
       .catch((err) => setZenQuote(`Error: ${err}`));
+
+    // 3. Fetch GitHub Profile
+    invoke<GithubUser>("get_github_user", { username: "shubhambadola" })
+      .then(setUser)
+      .catch(console.error);
   }, []);
 
   if (!stats) return <div className="container"><h1>Loading Life Stats...</h1></div>;
@@ -38,7 +52,18 @@ function App() {
         </div>
       </div>
 
-      <h1 className="header">Life Stats Manager</h1>
+      <div className="header-section">
+        {user && (
+          <div className="profile">
+            <img src={user.avatar_url} alt="Profile" className="profile-img" />
+            <div className="profile-info">
+              <div className="profile-name">{user.name || user.login}</div>
+              <div className="profile-stats">{user.public_repos} Repos</div>
+            </div>
+          </div>
+        )}
+        <h1 className="header-title">Life Stats</h1>
+      </div>
 
       {/* Score Circle Area */}
       <div className="score-card">
