@@ -35,6 +35,12 @@ body {
   padding-left: 10px;
 }
 
+.titlebar-drag-region {
+  flex-grow: 1;
+  height: 100%;
+  /* This element is now the drag handle */
+}
+
 .titlebar-buttons {
   display: flex;
   gap: 8px;
@@ -46,6 +52,7 @@ body {
   height: 12px;
   border-radius: 50%;
   background-color: #3b3b3b;
+  cursor: pointer;
   /* Placeholder color, looks like inactive traffic lights */
 }
 

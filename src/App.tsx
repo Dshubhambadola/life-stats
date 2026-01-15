@@ -79,21 +79,32 @@ function App() {
       .catch(console.error);
   }, []);
 
-  const handleMinimize = () => getCurrentWindow().minimize();
-  const handleMaximize = () => getCurrentWindow().toggleMaximize();
-  const handleClose = () => getCurrentWindow().close();
+  const handleMinimize = () => {
+    console.log("Minimize clicked");
+    getCurrentWindow().minimize();
+  };
+  const handleMaximize = () => {
+    console.log("Maximize clicked");
+    getCurrentWindow().toggleMaximize();
+  };
+  const handleClose = () => {
+    console.log("Close clicked");
+    getCurrentWindow().close();
+  };
 
   if (!stats) return <div className="container"><h1>Loading Life Stats...</h1></div>;
 
   return (
     <div className="container">
       {/* Custom Title Bar (Drag Region) */}
-      <div data-tauri-drag-region className="titlebar">
+      {/* Custom Title Bar */}
+      <div className="titlebar">
         <div className="titlebar-buttons">
           <div onClick={handleClose} className="titlebar-button close"></div>
           <div onClick={handleMinimize} className="titlebar-button minimize"></div>
           <div onClick={handleMaximize} className="titlebar-button maximize"></div>
         </div>
+        <div data-tauri-drag-region className="titlebar-drag-region"></div>
       </div>
 
       <div className="header-section">
