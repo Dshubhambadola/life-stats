@@ -10,12 +10,21 @@ struct WakatimeResponse {
 struct WakatimeData {
     human_readable_total: String,
     total_seconds: f64,
+    languages: Vec<Language>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Language {
+    pub name: String,
+    pub percent: f64,
+    pub text: String, // e.g. "1 hr 30 mins"
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WakatimeStats {
     pub human_readable_total: String,
     pub total_seconds: f64,
+    pub languages: Vec<Language>,
 }
 
 pub async fn fetch_coding_hours(api_key: &str) -> Result<WakatimeStats, String> {
@@ -40,5 +49,6 @@ pub async fn fetch_coding_hours(api_key: &str) -> Result<WakatimeStats, String> 
     Ok(WakatimeStats {
         human_readable_total: res.data.human_readable_total,
         total_seconds: res.data.total_seconds,
+        languages: res.data.languages,
     })
 }
