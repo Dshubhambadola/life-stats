@@ -14,10 +14,28 @@ body {
   color: var(--text-primary);
   font-family: 'Outfit', sans-serif;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
-  /* Prevent scrolling on the body */
+  overflow-y: auto;
+  /* Allow vertical scrolling */
   border-radius: 12px;
   /* Smooth corners for the whole app */
+}
+
+/* Custom Scrollbar for Cyberpunk Look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2d2f36;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b3b3b;
 }
 
 .titlebar {

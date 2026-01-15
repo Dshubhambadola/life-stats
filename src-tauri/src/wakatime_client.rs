@@ -26,8 +26,16 @@ pub async fn fetch_coding_hours(api_key: &str) -> Result<WakatimeStats, String> 
 
     let response_body = http_client::fetch_url(&url).await?;
 
-    let res: WakatimeResponse = serde_json::from_str(&response_body)
-        .map_err(|e| format!("Failed to parse WakaTime JSON: {}", e))?;
+    let json: serde_json::Value =
+        serde_json::from_str(&response_body).map_err(|e| format!("Failed to parse JSON: {}", e))?;
+
+    if let Some(error_msg) = json.get("error").and_then(|e| e.as_str()) {
+        return Err(format!("WakaTime API Error: {}", error_msg));
+    }
+
+    // If no error, parse as success struct
+    let res: WakatimeResponse = serde_json::from_value(json)
+        .map_err(|e| format!("Invalid WakaTime response structure: {}", e))?;
 
     Ok(WakatimeStats {
         human_readable_total: res.data.human_readable_total,
