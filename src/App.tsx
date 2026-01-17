@@ -6,6 +6,7 @@ import {
   LineChart, Line, ResponsiveContainer, Tooltip, XAxis,
   PieChart, Pie, Cell, Legend
 } from 'recharts';
+import { isPermissionGranted, requestPermission, sendNotification } from '@tauri-apps/plugin-notification';
 import "./App.css";
 
 // Mock Data for the Wave
@@ -142,6 +143,19 @@ function App() {
       });
 
       setFullStats(data);
+
+      // 3. Send Notification (Day 11)
+      let permissionGranted = await isPermissionGranted();
+      if (!permissionGranted) {
+        const permission = await requestPermission();
+        permissionGranted = permission === 'granted';
+      }
+      if (permissionGranted) {
+        sendNotification({
+          title: 'Life Stats Updated',
+          body: `Latest score: ${data.life_score}. Keep it logical!`,
+        });
+      }
 
       // Update legacy mock stats (optional, or just use fullStats)
       setStats({

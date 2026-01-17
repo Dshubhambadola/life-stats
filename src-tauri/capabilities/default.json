@@ -13,6 +13,7 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "store:default",
-    "core:tray:default"
+    "core:tray:default",
+    "notification:default"
   ]
 }
